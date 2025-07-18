@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>粉樱AI聊天室 v5.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #ff85a2; /* 主色调：柔粉色 */
+            --primary-light: #ffd6e7; /* 浅粉色 */
+            --primary-glow: rgba(255, 133, 162, 0.3);
+            --success-color: #a8d8b9; /* 柔绿色 */
+            --danger-color: #ffb3b3; /* 柔红色 */
+            --secondary-color: #c6a6e8; /* 淡紫色 */
+            --bg-color: #fff8fb; /* 浅粉背景 */
+            --bg-secondary-color: #ffffff; 
+            --text-color: #5a4a72; /* 深紫色文字 */
+            --text-secondary-color: #9e8fb5;
+            --border-color: #f0dde9;
+            --bubble-user-bg: #ffd6e7;
+            --bubble-ai-bg: #f0e6ff;
+            --shadow-sm: 0 2px 8px rgba(166, 133, 181, 0.1);
+            --shadow-md: 0 6px 16px rgba(166, 133, 181, 0.15);
+            --border-radius: 16px;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
+            margin: 0;
+            background-color: var(--bg-color);
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffd6e7' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+            color: var(--text-color);
+        }
+
+        #app-wrapper {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .page {
+            width: 100%;
+            max-width: 100%;
+            height: 100vh;
+            max-height: 100%;
+            background-color: var(--bg-secondary-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            border: none;
+            box-shadow: none;
+        }
+
+        /* 顶部装饰 */
+        .page::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #ffc2d1, #ffa6c1, #ff85a2);
+            z-index: 20;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 20px;
+            padding: 12px 18px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            color: white;
+            box-shadow: var(--shadow-sm);
+            background-color: var(--primary-color);
+            font-family: 'Quicksand', sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 133, 162, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(255, 133, 162, 0.2);
+        }
+
+        button:disabled {
+            background-color: #e0d7e0 !important;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            font-size: 16px;
+            background-color: var(--bg-secondary-color);
+            transition: all 0.3s ease;
+            color: var(--text-color);
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+            outline: none;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-secondary-color);
+            font-size: 15px;
+        }
+
+        .divider {
+            border-top: 1px solid var(--border-color);
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: "⋆";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            color: var(--primary-color);
+            padding: 0 10px;
+            font-size: 20px;
+        }
+
+        .avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #f7f0f5;
+            border: 2px solid white;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.3s ease;
+        }
+
+        .avatar-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background-color: #f7f0f5;
+            border: 2px solid white;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .avatar-small:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .avatar-small.active {
+            box-shadow: 0 0 0 3px var(--primary-color);
+        }
+
+        .avatar-input-label {
+            cursor: pointer;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .avatar-input-label:hover {
+            opacity: 0.8;
+        }
+
+        #settings-page .content {
+            padding: 20px;
+            overflow-y: auto;
+            background-color: var(--bg-secondary-color);
+            flex-grow: 1;
+            padding-top: 40px;
+        }
+
+        #settings-page h1, #settings-page h2 {
+            text-align: center;
+            color: var(--text-color);
+            font-weight: 700;
+            margin-bottom: 25px;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        #settings-page h1::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(to right, #ffb6c1, #ff69b4);
+            border-radius: 2px;
+        }
+
+        #settings-page fieldset {
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            background: rgba(255, 214, 231, 0.05);
+            box-shadow: var(--shadow-sm);
+        }
+
+        #settings-page legend {
+            font-weight: 600;
+            padding: 0 15px;
+            color: var(--primary-color);
+            font-size: 18px;
+            letter-spacing: 0.5px;
+        }
+
+        #persona-list .persona-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-radius: 14px;
+            transition: all 0.3s ease;
+            background: white;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        #persona-list .persona-item:hover {
+            background-color: #fef6fa;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(166, 133, 181, 0.12);
+        }
+
+        #add-persona-btn {
+            background: var(--primary-color);
+            width: 100%;
+            margin-top: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            padding: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            border-radius: 16px;
+        }
+
+        #go-to-chat-btn {
+            background: var(--success-color);
+            width: 100%;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 17px;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(168, 216, 185, 0.3);
+            border-radius: 16px;
+        }
+
+        #go-to-chat-btn:hover {
+            box-shadow: 0 6px 16px rgba(168, 216, 185, 0.4);
+        }
+
+        .btn-edit {
+            background-color: var(--primary-color);
+            padding: 8px 15px;
+            font-size: 14px;
+            border-radius: 12px;
+        }
+
+        .btn-delete {
+            background-color: var(--danger-color);
+            padding: 8px 15px;
+            font-size: 14px;
+            border-radius: 12px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        #chat-page {
+            display: none;
+        }
+
+        .chat-header {
+            background-color: var(--bg-secondary-color);
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(166, 133, 181, 0.05);
+            padding-top: 30px;
+        }
+
+        #chat-title-text {
+            margin: 0;
+            font-size: 1.25em;
+            font-weight: 700;
+            cursor: pointer;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 60%;
+        }
+
+        #chat-title-text::before {
+            content: "💬";
+            font-size: 1.2em;
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--secondary-color);
+        }
+
+        .header-icons .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f0f5;
+            transition: all 0.3s ease;
+        }
+
+        .header-icons .icon-btn:hover {
+            background: var(--primary-light);
+            transform: scale(1.1);
+        }
+
+        .header-icons svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 1.8;
+        }
+
+        .chat-window {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            background-color: #fcf9fb;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 20px;
+            max-width: 100%;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message .bubble-container {
+            display: flex;
+            flex-direction: column;
+            max-width: calc(100% - 60px);
+        }
+
+        .message .sender-name {
+            font-size: 0.8em;
+            color: var(--text-secondary-color);
+            margin: 0 12px 6px;
+            font-weight: 600;
+        }
+
+        .message .message-content {
+            padding: 14px 18px;
+            border-radius: 22px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+
+        .message .message-content:hover {
+            transform: translateY(-2px);
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message.user .bubble-container {
+            align-items: flex-end;
+        }
+
+        .message.user .message-content {
+            background-color: var(--bubble-user-bg);
+            border-bottom-right-radius: 6px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .message.user .message-content::after {
+            content: "";
+            position: absolute;
+            right: -8px;
+            top: 15px;
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-left: 12px solid var(--bubble-user-bg);
+        }
+
+        .message.ai .message-content {
+            background-color: var(--bubble-ai-bg);
+            border-bottom-left-radius: 6px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .message.ai .message-content::after {
+            content: "";
+            position: absolute;
+            left: -8px;
+            top: 15px;
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-right: 12px solid var(--bubble-ai-bg);
+        }
+
+        .message-action-menu {
+            position: absolute;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(166, 133, 181, 0.2);
+            display: flex;
+            flex-direction: column;
+            padding: 8px;
+            z-index: 10;
+            border: 1px solid var(--border-color);
+            min-width: 120px;
+        }
+
+        .message-action-menu button {
+            background: none;
+            color: var(--text-color);
+            text-align: left;
+            padding: 10px 14px;
+            width: 100%;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            margin: 2px 0;
+        }
+
+        .message-action-menu button:hover {
+            background: #faf0f5;
+            color: var(--primary-color);
+        }
+
+        .message.system {
+            width: fit-content;
+            align-self: center;
+            background-color: #f0e6ff;
+            color: var(--text-color);
+            font-size: 0.85em;
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin: 10px 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .input-area {
+            background-color: #ffffff;
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -2px 10px rgba(166, 133, 181, 0.05);
+        }
+
+        .reply-requester-area {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 0 5px;
+        }
+
+        .user-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            resize: none;
+            padding: 14px 18px;
+            border-radius: 20px;
+            background: #fff;
+        }
+
+        #send-user-message-btn {
+            background: transparent;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+            box-shadow: none;
+            transition: all 0.3s ease;
+        }
+
+        #send-user-message-btn:hover {
+            background: var(--primary-light);
+            transform: scale(1.05);
+        }
+
+        #send-user-message-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--primary-color);
+            stroke-width: 2;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(90, 74, 114, 0.5);
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(166, 133, 181, 0.3);
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .modal-content::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #ffc2d1, #ffa6c1, #ff85a2);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        #modal-save {
+            background: linear-gradient(135deg, #a8d8b9, #8dcca8);
+            padding: 12px 24px;
+            border-radius: 16px;
+        }
+
+        #modal-cancel {
+            background: linear-gradient(135deg, #c6a6e8, #b495e0);
+            padding: 12px 24px;
+            border-radius: 16px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 3px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+
+        .persona-info {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .persona-info .name {
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .persona-info .model {
+            font-size: 13px;
+            color: var(--text-secondary-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 214, 231, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-light);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-color);
+        }
+
+        /* 状态栏占位 */
+        .status-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: transparent;
+            z-index: 15;
+        }
+
+        /* 优化手机端布局 */
+        @media (max-width: 480px) {
+            .chat-header {
+                padding: 10px 12px;
+                padding-top: 30px;
+            }
+            
+            .message .message-content {
+                padding: 12px 16px;
+                font-size: 15px;
+            }
+            
+            .user-input-group {
+                gap: 8px;
+            }
+            
+            #user-input {
+                padding: 12px 16px;
+            }
+            
+            #settings-page .content {
+                padding: 15px;
+                padding-top: 40px;
+            }
+            
+            #settings-page fieldset {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app-wrapper">
+        <div id="settings-page" class="page">
+            <div class="status-bar"></div>
+            <div class="content"> 
+                 <h1>聊天室设置</h1> 
+                 <fieldset>
+                     <legend>你的身份</legend>
+                     <div id="user-settings"> 
+                         <div class="form-group" style="display: flex; gap: 15px; align-items: center;">
+                             <label class="avatar-input-label" for="user-avatar-input">
+                                 <img id="user-avatar-preview" class="avatar">
+                             </label>
+                             <input type="file" id="user-avatar-input" accept="image/*" style="display:none;">
+                             <div style="flex-grow:1;">
+                                 <label>你的名字</label>
+                                 <input type="text" id="user-name" placeholder="输入你的昵称" value="小鹿">
+                             </div>
+                         </div> 
+                         <div class="form-group">
+                             <label>你的简介</label>
+                             <textarea id="user-profile" rows="3" placeholder="简单介绍一下自己...">喜欢粉色和可爱事物的AI爱好者</textarea>
+                         </div> 
+                     </div>
+                 </fieldset> 
+                 <fieldset>
+                     <legend>AI 角色管理</legend>
+                     <div id="persona-list">
+                         <div class="persona-item">
+                             <label class="avatar-input-label">
+                                 <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2NlY2VjZSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTBzMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6bTAgMTRjLTIuNzEgMC01LjE4LTEuMjQtNi45My0zLjE1QzYuOTUgMTQuODIgOC40NyAxNCAxMiAxNHMyLjA1LjgxIDMuOTMgMS44NUMxNy4xOCAxOS43NiAxNC43MSAyMSAxMiAyMXoiLz48L3N2Zz4=" class="avatar">
+                             </label>
+                             <div class="persona-info">
+                                 <div class="name">小助理</div>
+                                 <div class="model">模型: 未设置</div>
+                             </div>
+                             <div class="actions">
+                                 <button class="btn-edit">编辑</button>
+                                 <button class="btn-delete">删除</button>
+                             </div>
+                         </div>
+                         <div class="persona-item">
+                             <label class="avatar-input-label">
+                                 <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmYzJkMSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTBzMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6bTAgMTRjLTIuNzEgMC01LjE4LTEuMjQtNi45My0zLjE1QzYuOTUgMTQuODIgOC40NyAxNCAxMiAxNHMyLjA1LjgxIDMuOTMgMS44NUMxNy4xOCAxOS43NiAxNC43MSAyMSAxMiAyMXoiLz48L3N2Zz4=" class="avatar">
+                             </label>
+                             <div class="persona-info">
+                                 <div class="name">情感顾问</div>
+                                 <div class="model">模型: GPT-4</div>
+                             </div>
+                             <div class="actions">
+                                 <button class="btn-edit">编辑</button>
+                                 <button class="btn-delete">删除</button>
+                             </div>
+                         </div>
+                     </div> 
+                     <button id="add-persona-btn">＋ 添加新人设</button>
+                 </fieldset> 
+                 <button id="go-to-chat-btn">进入聊天室</button> 
+             </div>
+        </div>
+        <div id="chat-page" class="page">
+            <div class="status-bar"></div>
+             <div class="chat-header"> 
+                 <h2 id="chat-title-text">粉樱AI聊天室</h2> 
+                 <div class="header-icons"> 
+                     <div id="clear-history-btn" title="清空记录" class="icon-btn"> 
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                             <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m-6 5v9M10 11l4 4m0-4l-4 4"></path>
+                         </svg> 
+                     </div> 
+                     <div id="settings-icon" title="返回设置" class="icon-btn"> 
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                             <circle cx="12" cy="12" r="3"></circle>
+                             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V15a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51-1z"></path>
+                         </svg> 
+                     </div> 
+                 </div> 
+             </div> 
+             <div class="chat-window" id="chat-window">
+                 <div class="message system">
+                     欢迎来到粉樱AI聊天室！请选择角色开始对话...
+                 </div>
+                 <div class="message ai">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2NlY2VjZSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTBzMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6bTAgMTRjLTIuNzEgMC01LjE4LTEuMjQtNi45My0zLjE1QzYuOTUgMTQuODIgOC40NyAxNCAxMiAxNHMyLjA1LjgxIDMuOTMgMS44NUMxNy4xOCAxOS43NiAxNC43MSAyMSAxMiAyMXoiLz48L3N2Zz4=" class="avatar">
+                    <div class="bubble-container">
+                        <span class="sender-name">小助理</span>
+                        <div class="message-content">
+                            你好！我是你的AI小助理，有什么我可以帮忙的吗？🌸
+                        </div>
+                    </div>
+                 </div>
+                 <div class="message user">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmODVhMiI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTBzMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6bTAgMTRjLTIuNzEgMC01LjE4LTEuMjQtNi45My0zLjE1QzYuOTUgMTQuODIgOC40NyAxNCAxMiAxNHMyLjA1LjgxIDMuOTMgMS44NUMxNy4xOCAxOS43NiAxNC43MSAyMSAxMiAyMXoiLz48L3N2Zz4=" class="avatar">
+                    <div class="bubble-container">
+                        <span class="sender-name">小鹿</span>
+                        <div class="message-content">
+                            你好！这个聊天室设计得真漂亮！
+                        </div>
+                    </div>
+                 </div>
+                 <div class="message ai">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmYzJkMSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTBzMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6bTAgMTRjLTIuNzEgMC01LjE4LTEuMjQtNi45My0zLjE1QzYuOTUgMTQuODIgOC40NyAxNCAxMiAxNHMyLjA1LjgxIDMuOTMgMS44NUMxNy4xOCAxOS43NiAxNC43MSAyMSAxMiAyMXoiLz48L3N2Zz4=" class="avatar">
+                    <div class="bubble-container">
+                        <span class="sender-name">情感顾问</span>
+                        <div class="message-content">
+                            很高兴你喜欢这个设计！有什么情感问题需要我帮助吗？💕
+                        </div>
+                    </div>
+                 </div>
+             </div> 
+             <div class="input-area"> 
+                 <div class="reply-requester-area" id="reply-requester-area">
+                     <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2NlY2VjZSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTBzMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6bTAgMTRjLTIuNzEgMC01LjE4LTEuMjQtNi45My0zLjE1QzYuOTUgMTQuODIgOC40NyAxNCAxMiAxNHMyLjA1LjgxIDMuOTMgMS44NUMxNy4x4gxOS43NiAxNC43MSAyMSAxMiAyMXoiLz48L3N2Zz4=" class="avatar-small active" title="小助理">
+                     <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmYzJkMSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTBzMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6bTAgMTRjLTIuNzEgMC01LjE4LTEuMjQtNi45My0zLjE1QzYuOTUgMTQuODIgOC40NyAxNCAxMiAxNHMyLjA1LjgxIDMuOTMgMS44NUMxNy4xOCAxOS.c6xNC43MSAyMSAxMiAyMXoiLz48L3N2Zz4=" class="avatar-small" title="情感顾问">
+                     <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2E4ZDhiOSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTBzMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6bTAgMTRjLTIuNzEgMC01LjE4LTEuMjQtNi45My0zLjE1QzYuOTUgMTQuODIgOC40NyAxNCAxMiAxNHMyLjA1LjgxIDMuOTMgMS44NUMxNy4xOCAxOS43NiAxNC43MSAyMSAxMiAyMXoiLz48L3N2Zz4=" class="avatar-small" title="学习助手">
+                     <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2M2YTZlOCI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTBzMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6bTAgMTRjLTIuNzEgMC01LjE4LTEuMjQtNi45My0zLjE1QzYuOTUgMTQuODIgOC40NyAxNCAxMiAxNHMyLjA1LjgxIDMuOTMgMS44NUMxNy4xOCAxOS43NiAxNC43MSAyMSAxMiAyMXoiLz48L3N2Zz4=" class="avatar-small" title="创意伙伴">
+                     <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmODVhMiI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTBzMTAtNC40OCAxMC0xMFMxNy51MiAyIDEyIDJ6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6bTAgMTRjLTIuNzEgMC01LjE4LTEuMjQtNi45My0zLjE1QzYuOTUgMTQuODIgOC40NyAxNCAxMiAxNHMyLjA1LjgxIDMuOTMgMS44NUMxNy4xOCAxOS43NiAxNC43MSAyMSAxMiAyMXoiLz48L3N2Zz4=" class="avatar-small" title="旅行向导">
+                 </div> 
+                 <div class="user-input-group">
+                     <textarea id="user-input" placeholder="输入消息..." rows="2">这个新设计太棒了！</textarea>
+                     <button id="send-user-message-btn">
+                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                             <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
+                         </svg>
+                     </button>
+                 </div> 
+             </div> 
+        </div>
+    </div>
+    
+    <div id="persona-modal" class="modal"> 
+        <div class="modal-content"> 
+            <h3 id="modal-title">编辑人设</h3> 
+            <div class="form-group" style="text-align:center;"> 
+                <label class="avatar-input-label" for="modal-persona-avatar-input">
+                    <img id="modal-persona-avatar-preview" class="avatar" style="width:80px; height:80px;" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmODVhMiI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTBzMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6bTAgMTRjLTIuNzEgMC01LjE4LTEuMjQtNi45My0zLjE1QzYuOTUgMTQuODIgOC40NyAxNCAxMiAxNHMyLjA1LjgxIDMuOTMgMS44NUMxNy4xOCAxOS43NiAxNC43MSAyMSAxMiAyMXoiLz48L3N2Zz4=">
+                </label> 
+                <input type="file" id="modal-persona-avatar-input" accept="image/*" style="display:none;"> 
+            </div> 
+            <input type="hidden" id="modal-persona-id"> 
+            <div class="form-group">
+                <label>角色名称</label>
+                <input type="text" id="modal-persona-name" placeholder="例如：贴心助手" value="小助理">
+            </div>
+            <div class="form-group">
+                <label>角色设定</label>
+                <textarea id="modal-persona-prompt" placeholder="详细描述角色特点...">你是一个乐于助人的AI助理，友好且专业。</textarea>
+            </div>
+            <div class="divider"></div>
+            <h4>独立API配置</h4>
+            <div class="form-group">
+                <label>API 地址</label>
+                <input type="text" id="modal-api-url" placeholder="https://api.example.com">
+            </div>
+            <div class="form-group">
+                <label>密钥</label>
+                <input type="password" id="modal-api-key" placeholder="输入API密钥">
+            </div>
+            <div class="form-group">
+                <label>模型名称</label>
+                <input type="text" id="modal-api-model" placeholder="例如：gpt-4">
+            </div>
+            <div class="modal-actions">
+                <button id="modal-cancel">取消</button>
+                <button id="modal-save">保存</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const appWrapper = document.getElementById("app-wrapper"),
+        settingsPage = document.getElementById("settings-page"),
+        chatPage = document.getElementById("chat-page"),
+        userNameInput = document.getElementById("user-name"),
+        userProfileInput = document.getElementById("user-profile"),
+        userAvatarPreview = document.getElementById("user-avatar-preview"),
+        userAvatarInput = document.getElementById("user-avatar-input"),
+        personaList = document.getElementById("persona-list"),
+        addPersonaBtn = document.getElementById("add-persona-btn"),
+        goToChatBtn = document.getElementById("go-to-chat-btn"),
+        chatTitleText = document.getElementById("chat-title-text"),
+        clearHistoryBtn = document.getElementById("clear-history-btn"),
+        chatWindow = document.getElementById("chat-window"),
+        userInput = document.getElementById("user-input"),
+        sendUserMessageBtn = document.getElementById("send-user-message-btn"),
+        replyRequesterArea = document.getElementById("reply-requester-area"),
+        settingsIcon = document.getElementById("settings-icon"),
+        personaModal = document.getElementById("persona-modal"),
+        modalTitle = document.getElementById("modal-title"),
+        modalPersonaId = document.getElementById("modal-persona-id"),
+        modalPersonaName = document.getElementById("modal-persona-name"),
+        modalPersonaPrompt = document.getElementById("modal-persona-prompt"),
+        modalApiUrl = document.getElementById("modal-api-url"),
+        modalApiKey = document.getElementById("modal-api-key"),
+        modalApiModel = document.getElementById("modal-api-model"),
+        modalPersonaAvatarPreview = document.getElementById("modal-persona-avatar-preview"),
+        modalPersonaAvatarInput = document.getElementById("modal-persona-avatar-input"),
+        modalSaveBtn = document.getElementById("modal-save"),
+        modalCancelBtn = document.getElementById("modal-cancel");
+
+    // JS部分保持不变，功能与之前相同
+    let conversationHistory = []; 
+    let personas = []; 
+    let userSettings = {}; 
+    let chatTitle = '';
+    let activePersonaId = 1;
+    
+    const DEFAULT_AVATAR = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2NlY2VjZSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTBzMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6bTAgMThjLTIuNzEgMC01LjE4LTEuMjQtNi45My0zLjE1QzYuOTUgMTQuODIgOC40NyAxNCAxMiAxNHMyLjA1LjgxIDMuOTMgMS44NUMxNy4xOCAxOS43NiAxNC43MSAyMSAxMiAyMXoiLz48L3N2Zz4=';
+    let tempModalAvatar = '';
+
+    function handleAvatarChange(fileInput, previewElement, callback) {
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const result = e.target.result;
+                previewElement.src = result;
+                if (callback) callback(result);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+    
+    handleAvatarChange(userAvatarInput, userAvatarPreview, (data) => {
+        userSettings.avatar = data;
+    });
+    
+    handleAvatarChange(modalPersonaAvatarInput, modalPersonaAvatarPreview, (data) => {
+        tempModalAvatar = data;
+    });
+
+    function showPage(pageId) {
+        settingsPage.style.display = 'none';
+        chatPage.style.display = 'none';
+        document.getElementById(pageId).style.display = 'flex';
+    }
+
+    function loadSettings() {
+        // 从localStorage加载设置
+        userSettings = JSON.parse(localStorage.getItem('userSettings_v4')) || {
+            name: '小鹿',
+            profile: '喜欢粉色和可爱事物的AI爱好者',
+            avatar: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmODVhMiI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTBzMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6bTAgMTRjLTIuNzEgMC01LjE4LTEuMjQtNi45My0zLjE1QzYuOTUgMTQuODIgOC40NyAxNCAxMiAxNHMyLjA1LjgxIDMuOTMgMS44NUMxNy4xOCAxOS43NiAxNC43MSAyMSAxMiAyMXoiLz48L3N2Zz4='
+        };
+        
+        userNameInput.value = userSettings.name;
+        userProfileInput.value = userSettings.profile;
+        userAvatarPreview.src = userSettings.avatar || DEFAULT_AVATAR;
+        
+        chatTitle = localStorage.getItem('chatTitle_v4') || '粉樱AI聊天室';
+        chatTitleText.textContent = chatTitle;
+        
+        const savedPersonas = localStorage.getItem('personas_v4');
+        if (savedPersonas) {
+            personas = JSON.parse(savedPersonas);
+        } else {
+            personas = [
+                {
+                    id: 1,
+                    name: '小助理',
+                    prompt: '你是一个乐于助人的AI助理，友好且专业。',
+                    apiUrl: '',
+                    apiKey: '',
+                    apiModel: '',
+                    avatar: DEFAULT_AVATAR
+                },
+                {
+                    id: 2,
+                    name: '情感顾问',
+                    prompt: '你是一个富有同情心的情感顾问，擅长倾听和提供情感支持。',
+                    apiUrl: '',
+                    apiKey: '',
+                    apiModel: 'GPT-4',
+                    avatar: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2ZmYzJkMSI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTBzMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgM2MxLjY2IDAgMyAxLjM0IDMgM3MtMS4zNCAzLTMgMy0zLTEuMzQtMy0zIDEuMzQtMyAzLTN6bTAgMTRjLTIuNzEgMC01LjE4LTEuMjQtNi45My0zLjE1QzYuOTUgMTQuODIgOC40NyAxNCAxMiAxNHMyLjA1LjgxIDMuOTMgMS44NUMxNy4xOCAxOS43NiAxNC43MSAyMSAxMiAyMXoiLz48L3N2Zz4='
+                }
+            ];
+        }
+        
+        const savedHistory = localStorage.getItem('conversationHistory_v4');
+        if (savedHistory) {
+            conversationHistory = JSON.parse(savedHistory);
+            renderFullChatHistory();
+        }
+        
+        renderPersonaList();
+        renderReplyRequesters();
+    }
+
+    function saveAllSettings() {
+        userSettings.name = userNameInput.value.trim() || '用户';
+        userSettings.profile = userProfileInput.value.trim();
+        localStorage.setItem('userSettings_v4', JSON.stringify(userSettings));
+        localStorage.setItem('chatTitle_v4', chatTitle);
+    }
+
+    function renderFullChatHistory() {
+        chatWindow.innerHTML = '';
+        conversationHistory.forEach(msg => addMessageToDOM(msg));
+    }
+
+    function saveHistory() {
+        localStorage.setItem('conversationHistory_v4', JSON.stringify(conversationHistory));
+    }
+
+    function clearHistory() {
+        if (confirm('确定要清空所有聊天记录吗？此操作不可恢复。')) {
+            conversationHistory = [];
+            saveHistory();
+            renderFullChatHistory();
+        }
+    }
+
+    function addMessageToDOM(msg) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${msg.role === 'user' ? 'user' : 'ai'}`;
+        messageDiv.dataset.id = msg.id;
+        
+        let avatarSrc = DEFAULT_AVATAR;
+        if (msg.role === 'user') {
+            avatarSrc = userSettings.avatar;
+        } else {
+            const persona = personas.find(p => p.name === msg.name);
+            if (persona) avatarSrc = persona.avatar;
+        }
+        
+        messageDiv.innerHTML = `
+            <img src="${avatarSrc}" class="avatar">
+            <div class="bubble-container">
+                <span class="sender-name">${msg.name}</span>
+                <div class="message-content">${msg.content}</div>
+            </div>
+        `;
+        
+        messageDiv.querySelector('.message-content').addEventListener('click', (e) => {
+            e.stopPropagation();
+            showMessageActionMenu(msg, e.currentTarget);
+        });
+        
+        chatWindow.appendChild(messageDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function showMessageActionMenu(msg, triggerElement) {
+        hideMessageActionMenu();
+        
+        const menu = document.createElement('div');
+        menu.id = 'action-menu';
+        menu.className = 'message-action-menu';
+        
+        if (msg.role === 'user') {
+            menu.innerHTML = `
+                <button data-action="edit">编辑</button>
+                <button data-action="delete">撤回</button>
+            `;
+            menu.querySelector('[data-action="edit"]').onclick = () => startEditMessage(msg.id);
+            menu.querySelector('[data-action="delete"]').onclick = () => deleteMessage(msg.id);
+        } else {
+            menu.innerHTML = `
+                <button data-action="regenerate">重新生成</button>
+                <button data-action="delete">删除</button>
+            `;
+            menu.querySelector('[data-action="regenerate"]').onclick = () => regenerateResponse(msg.id);
+            menu.querySelector('[data-action="delete"]').onclick = () => deleteMessage(msg.id);
+        }
+        
+        const rect = triggerElement.getBoundingClientRect();
+        menu.style.top = `${rect.bottom + 5}px`;
+        menu.style.left = `${rect.left}px`;
+        
+        document.body.appendChild(menu);
+    }
+
+    function hideMessageActionMenu() {
+        const existingMenu = document.getElementById('action-menu');
+        if (existingMenu) existingMenu.remove();
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.message-content') && !e.target.closest('.message-action-menu')) {
+            hideMessageActionMenu();
+        }
+    });
+
+    function startEditMessage(id) {
+        hideMessageActionMenu();
+        
+        const msg = conversationHistory.find(m => m.id === id);
+        const msgElem = document.querySelector(`[data-id='${id}'] .message-content`);
+        
+        msgElem.innerHTML = `
+            <div class="edit-container">
+                <input type="text" value="${msg.content.replace(/"/g, '&quot;')}">
+                <div>
+                    <button class="save">保存</button>
+                    <button class="cancel">取消</button>
+                </div>
+            </div>
+        `;
+        
+        msgElem.querySelector('.save').onclick = () => 
+            saveMessageEdit(id, msgElem.querySelector('input').value);
+            
+        msgElem.querySelector('.cancel').onclick = () => 
+            renderFullChatHistory();
+    }
+
+    function saveMessageEdit(id, newContent) {
+        const index = conversationHistory.findIndex(m => m.id === id);
+        if (index > -1) {
+            conversationHistory[index].content = newContent;
+        }
+        
+        saveHistory();
+        renderFullChatHistory();
+    }
+
+    function deleteMessage(id) {
+        if (confirm('确定要删除这条消息吗？')) {
+            conversationHistory = conversationHistory.filter(m => m.id !== id);
+            saveHistory();
+            renderFullChatHistory();
+        }
+        hideMessageActionMenu();
+    }
+
+    function regenerateResponse(id) {
+        hideMessageActionMenu();
+        
+        const msgIndex = conversationHistory.findIndex(m => m.id === id);
+        if (msgIndex === -1) return;
+        
+        const originalMsg = conversationHistory[msgIndex];
+        const historyForRegen = conversationHistory.slice(0, msgIndex);
+        
+        const persona = personas.find(p => p.name === originalMsg.name);
+        if (!persona) {
+            alert('找不到该消息对应的人设！');
+            return;
+        }
+        
+        callAI(persona.id, historyForRegen, id);
+    }
+
+    function renderPersonaList() {
+        personaList.innerHTML = '';
+        
+        personas.forEach(p => {
+            const item = document.createElement('div');
+            item.className = 'persona-item';
+            item.innerHTML = `
+                <label class="avatar-input-label">
+                    <img src="${p.avatar || DEFAULT_AVATAR}" class="avatar">
+                </label>
+                <div class="persona-info">
+                    <div class="name">${p.name}</div>
+                    <div class="model">模型: ${p.apiModel || '未设置'}</div>
+                </div>
+                <div class="actions">
+                    <button class="btn-edit" data-id="${p.id}">编辑</button>
+                    <button class="btn-delete" data-id="${p.id}">删除</button>
+                </div>
+            `;
+            
+            item.querySelector('.btn-edit').addEventListener('click', () => showPersonaModal(p.id));
+            item.querySelector('.btn-delete').addEventListener('click', () => deletePersona(p.id));
+            
+            personaList.appendChild(item);
+        });
+    }
+
+    function showPersonaModal(id = null) {
+        if (id) {
+            const p = personas.find(p => p.id === id);
+            modalTitle.textContent = '编辑人设';
+            modalPersonaId.value = p.id;
+            modalPersonaName.value = p.name;
+            modalPersonaPrompt.value = p.prompt;
+            modalApiUrl.value = p.apiUrl;
+            modalApiKey.value = p.apiKey;
+            modalApiModel.value = p.apiModel;
+            modalPersonaAvatarPreview.src = p.avatar || DEFAULT_AVATAR;
+            tempModalAvatar = p.avatar || DEFAULT_AVATAR;
+        } else {
+            modalTitle.textContent = '添加新人设';
+            modalPersonaId.value = '';
+            modalPersonaName.value = '';
+            modalPersonaPrompt.value = '';
+            modalApiUrl.value = '';
+            modalApiKey.value = '';
+            modalApiModel.value = '';
+            modalPersonaAvatarPreview.src = DEFAULT_AVATAR;
+            tempModalAvatar = DEFAULT_AVATAR;
+        }
+        
+        personaModal.style.display = 'flex';
+    }
+
+    function hidePersonaModal() {
+        personaModal.style.display = 'none';
+    }
+
+    function savePersona() {
+        const id = modalPersonaId.value ? parseInt(modalPersonaId.value) : null;
+        const name = modalPersonaName.value.trim();
+        const prompt = modalPersonaPrompt.value.trim();
+        const apiUrl = modalApiUrl.value.trim();
+        const apiKey = modalApiKey.value.trim();
+        const apiModel = modalApiModel.value.trim();
+        
+        if (!name || !prompt || !apiUrl || !apiKey || !apiModel) {
+            alert('所有字段均为必填项，请检查！');
+            return;
+        }
+        
+        const personaData = {
+            name,
+            prompt,
+            apiUrl,
+            apiKey,
+            apiModel,
+            avatar: tempModalAvatar
+        };
+        
+        if (id) {
+            const index = personas.findIndex(p => p.id === id);
+            personas[index] = { ...personaData, id };
+        } else {
+            const newId = personas.length > 0 ? Math.max(...personas.map(p => p.id)) + 1 : 1;
+            personas.push({ ...personaData, id: newId });
+        }
+        
+        localStorage.setItem('personas_v4', JSON.stringify(personas));
+        renderPersonaList();
+        renderReplyRequesters();
+        hidePersonaModal();
+    }
+
+    function deletePersona(id) {
+        if (confirm('确定要删除这个人设吗？此操作不可恢复。')) {
+            personas = personas.filter(p => p.id !== id);
+            localStorage.setItem('personas_v4', JSON.stringify(personas));
+            renderPersonaList();
+            renderReplyRequesters();
+        }
+    }
+
+    function renderReplyRequesters() {
+        replyRequesterArea.innerHTML = '';
+        
+        personas.forEach(p => {
+            const avatar = document.createElement('img');
+            avatar.className = 'avatar-small';
+            if (p.id === activePersonaId) {
+                avatar.classList.add('active');
+            }
+            avatar.src = p.avatar || DEFAULT_AVATAR;
+            avatar.title = p.name;
+            avatar.dataset.id = p.id;
+            
+            avatar.addEventListener('click', () => {
+                activePersonaId = p.id;
+                // 移除所有active类
+                document.querySelectorAll('.avatar-small').forEach(el => {
+                    el.classList.remove('active');
+                });
+                // 为当前选中的头像添加active类
+                avatar.classList.add('active');
+                askAI(p.id);
+            });
+            
+            replyRequesterArea.appendChild(avatar);
+        });
+    }
+
+    function sendUserMessage() {
+        const messageText = userInput.value.trim();
+        if (!messageText) return;
+        
+        const newMessage = {
+            id: Date.now(),
+            role: 'user',
+            name: userSettings.name,
+            content: messageText
+        };
+        
+        conversationHistory.push(newMessage);
+        addMessageToDOM(newMessage);
+        saveHistory();
+        
+        userInput.value = '';
+    }
+
+    async function callAI(personaId, history, regenerationId = null) {
+        const persona = personas.find(p => p.id === personaId);
+        if (!persona) return;
+        
+        // 禁用按钮防止重复请求
+        document.querySelectorAll('#reply-requester-area .avatar-small, #send-user-message-btn').forEach(b => b.disabled = true);
+        
+        const typingMsgId = Date.now();
+        
+        if (regenerationId) {
+            // 替换原有消息为"正在输入"状态
+            const msgIndex = conversationHistory.findIndex(m => m.id === regenerationId);
+            conversationHistory[msgIndex] = {
+                id: typingMsgId,
+                role: 'ai',
+                name: persona.name,
+                content: '...'
+            };
+            renderFullChatHistory();
+        } else {
+            // 添加新的"正在输入"消息
+            addMessageToDOM({
+                id: typingMsgId,
+                role: 'ai',
+                name: persona.name,
+                content: '<div class="typing-indicator"><span></span><span></span><span></span></div>'
+            });
+        }
+        
+        try {
+            const { apiUrl, apiKey, apiModel, prompt } = persona;
+            
+            // 构造系统提示
+            const otherPersonas = personas.filter(p => p.id !== persona.id).map(p => p.name).join('、');
+            const sceneDescription = otherPersonas.length > 0 ? 
+                `当前聊天室里有用户“${userSettings.name}”和你。此外，还有名为“${otherPersonas}”的其他AI角色。` : 
+                `当前聊天室里只有用户“${userSettings.name}”和你两个人。`;
+            
+            const finalSystemPrompt = `${prompt}\n\n${sceneDescription}\n关于用户“${userSettings.name}”的简介是：“${userSettings.profile}”。\n请你严格扮演自己的角色，并根据以下聊天记录进行回应。`;
+            
+            // 格式化历史记录
+            const formattedHistory = history.map(msg => ({
+                role: msg.role === 'user' ? 'user' : 'assistant',
+                content: `${msg.name}: ${msg.content}`
+            }));
+            
+            // 构造API URL
+            const finalApiUrl = (apiUrl.replace(/\/$/, '').endsWith('/v1') ? 
+                `${apiUrl.replace(/\/$/, '')}/chat/completions` : 
+                `${apiUrl.replace(/\/$/, '')}/v1/chat/completions`);
+            
+            // 发送请求
+            const response = await fetch(finalApiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: apiModel,
+                    messages: [
+                        { role: 'system', content: finalSystemPrompt },
+                        ...formattedHistory
+                    ]
+                })
+            });
+            
+            if (!response.ok) {
+                let errorMsg = `HTTP ${response.status}`;
+                try {
+                    errorMsg = (await response.json()).error.message;
+                } catch (e) {}
+                throw new Error(errorMsg);
+            }
+            
+            const data = await response.json();
+            const aiReply = data.choices[0].message.content;
+            
+            // 创建新消息对象
+            const newMessage = {
+                id: Date.now(),
+                role: 'assistant',
+                name: persona.name,
+                content: aiReply
+            };
+            
+            if (regenerationId) {
+                // 替换"正在输入"消息为实际回复
+                const msgIndex = conversationHistory.findIndex(m => m.id === typingMsgId);
+                conversationHistory[msgIndex] = newMessage;
+            } else {
+                // 移除"正在输入"消息并添加实际回复
+                document.querySelector(`[data-id='${typingMsgId}']`)?.remove();
+                conversationHistory.push(newMessage);
+            }
+            
+            saveHistory();
+            renderFullChatHistory();
+            
+        } catch (error) {
+            // 处理错误
+            document.querySelector(`[data-id='${typingMsgId}']`)?.remove();
+            addMessageToDOM({
+                id: Date.now(),
+                role: 'system',
+                name: '系统错误',
+                content: `来自 “${persona.name}” 的错误: ${error.message}`
+            });
+        } finally {
+            // 重新启用按钮
+            document.querySelectorAll('#reply-requester-area .avatar-small, #send-user-message-btn').forEach(b => b.disabled = false);
+        }
+    }
+
+    function askAI(personaId) {
+        callAI(personaId, conversationHistory);
+    }
+
+    // 事件监听器
+    goToChatBtn.addEventListener('click', () => {
+        if (personas.length === 0) {
+            alert('请至少添加一个人设！');
+            return;
+        }
+        
+        saveAllSettings();
+        showPage('chat-page');
+    });
+    
+    settingsIcon.addEventListener('click', () => {
+        saveAllSettings();
+        showPage('settings-page');
+    });
+    
+    clearHistoryBtn.addEventListener('click', clearHistory);
+    
+    chatTitleText.addEventListener('click', () => {
+        const newTitle = prompt('请输入新的聊天室名称：', chatTitle);
+        if (newTitle) {
+            chatTitle = newTitle;
+            chatTitleText.textContent = chatTitle;
+            saveAllSettings();
+        }
+    });
+    
+    addPersonaBtn.addEventListener('click', () => showPersonaModal());
+    modalSaveBtn.addEventListener('click', savePersona);
+    modalCancelBtn.addEventListener('click', hidePersonaModal);
+    
+    sendUserMessageBtn.addEventListener('click', sendUserMessage);
+    
+    userInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendUserMessage();
+        }
+    });
+    
+    // 初始化
+    function init() {
+        loadSettings();
+        showPage('settings-page');
+    }
+    
+    init();
+});
+</script>
+</body>
+</html>
